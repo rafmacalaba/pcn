@@ -1,5 +1,11 @@
 # @pcn-js/data360
 
+## 0.1.3
+
+### Patch Changes
+
+- e49c75c: Migrate custom claim extractors, compact output type definitions, and PreIngestSessionClaims layout component from the data-ai-chatbot codebase.
+
 ## 0.1.2
 
 ### Patch Changes

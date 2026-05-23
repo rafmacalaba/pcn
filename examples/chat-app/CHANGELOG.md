@@ -12,10 +12,11 @@
 
 ### Patch Changes
 
-- Updated dependencies
+- Updated dependencies [e49c75c]
   - @pcn-js/core@0.1.2
   - @pcn-js/data360@0.1.2
   - @pcn-js/ui@0.1.2
+
 
 ## 0.0.2
 
