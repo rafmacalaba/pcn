@@ -8,8 +8,28 @@ export type { Data360ClaimsProviderProps } from "./data360-claims-provider";
 export {
   IngestSessionData360,
   extractData360Outputs,
+  PreIngestSessionClaims,
+  claimsManager,
 } from "./ingest-session-data360";
 export type {
   IngestSessionData360Props,
-  MessageWithParts,
 } from "./ingest-session-data360";
+
+export {
+  rankCountriesExtractor,
+  compareCountriesExtractor,
+  summarizeDataExtractor,
+  getDataExtractor,
+} from "./extractors";
+
+export type {
+  CompactRankedCountry,
+  CompactRankingOutput,
+  CompactRankedEntry,
+  CompactComparisonSnapshot,
+  CompactTimeSeries,
+  CompactComparisonOutput,
+  CompactGroupSummary,
+  CompactSummaryOutput,
+  MessageWithParts,
+} from "./types";

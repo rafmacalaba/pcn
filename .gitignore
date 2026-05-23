@@ -28,3 +28,6 @@ secrets/
 
 # OS files
 Thumbs.db
+
+# pnpm store cache
+.pnpm-store/
