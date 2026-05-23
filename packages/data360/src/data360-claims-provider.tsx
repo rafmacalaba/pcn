@@ -7,6 +7,7 @@ import {
   type DataPointExtractorOptions,
 } from "@pcn-js/core";
 import { ClaimsProvider } from "@pcn-js/ui";
+import { claimsManager as defaultClaimsManager } from "./ingest-session-data360";
 
 /** Default tool name for Data360 get_data (use with IngestToolOutput). */
 export const DATA360_GET_DATA_TOOL = "data360_get_data";
@@ -31,27 +32,22 @@ export type Data360ClaimsProviderProps = {
  * ClaimsProvider preconfigured with a ClaimsManager and a Data360 get_data
  * data-point extractor. Use with IngestToolOutput (from @pcn-js/ui) when rendering
  * data360_get_data results so ClaimMark can resolve claims by claim_id.
- *
- * @example
- * import { Data360ClaimsProvider, DATA360_GET_DATA_TOOL } from "@pcn-js/data360";
- * import { IngestToolOutput } from "@pcn-js/ui";
- *
- * <Data360ClaimsProvider>
- *   <App />
- * </Data360ClaimsProvider>
- *
- * <IngestToolOutput toolName={DATA360_GET_DATA_TOOL} output={toolPart.output}>
- *   <GetData output={toolPart.output} />
- * </IngestToolOutput>
  */
 export function Data360ClaimsProvider({
-  toolName = DATA360_GET_DATA_TOOL,
-  extractorOptions = DEFAULT_EXTRACTOR_OPTIONS,
+  toolName,
+  extractorOptions,
   children,
 }: Data360ClaimsProviderProps) {
   const manager = useMemo(() => {
+    // If no custom options are provided, use the global pre-configured claimsManager
+    if (!toolName && !extractorOptions) {
+      return defaultClaimsManager;
+    }
+
     const m = new ClaimsManager();
-    m.registerExtractor(toolName, createDataPointExtractor(extractorOptions));
+    const tName = toolName ?? DATA360_GET_DATA_TOOL;
+    const opts = extractorOptions ?? DEFAULT_EXTRACTOR_OPTIONS;
+    m.registerExtractor(tName, createDataPointExtractor(opts));
     return m;
   }, [toolName, extractorOptions]);
 
