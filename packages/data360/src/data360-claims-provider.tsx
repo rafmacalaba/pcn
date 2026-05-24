@@ -7,10 +7,10 @@ import {
   type DataPointExtractorOptions,
 } from "@pcn-js/core";
 import { ClaimsProvider } from "@pcn-js/ui";
-import { claimsManager as defaultClaimsManager } from "./ingest-session-data360";
+import { createData360ClaimsManager } from "./ingest-session-data360";
+import { DATA360_GET_DATA_TOOL } from "./types";
 
-/** Default tool name for Data360 get_data (use with IngestToolOutput). */
-export const DATA360_GET_DATA_TOOL = "data360_get_data";
+export { DATA360_GET_DATA_TOOL };
 
 const DEFAULT_EXTRACTOR_OPTIONS: DataPointExtractorOptions = {
   dataKey: "data",
@@ -39,15 +39,12 @@ export function Data360ClaimsProvider({
   children,
 }: Data360ClaimsProviderProps) {
   const manager = useMemo(() => {
-    // If no custom options are provided, use the global pre-configured claimsManager
-    if (!toolName && !extractorOptions) {
-      return defaultClaimsManager;
+    const m = createData360ClaimsManager();
+    if (toolName || extractorOptions) {
+      const tName = toolName ?? DATA360_GET_DATA_TOOL;
+      const opts = extractorOptions ?? DEFAULT_EXTRACTOR_OPTIONS;
+      m.registerExtractor(tName, createDataPointExtractor(opts));
     }
-
-    const m = new ClaimsManager();
-    const tName = toolName ?? DATA360_GET_DATA_TOOL;
-    const opts = extractorOptions ?? DEFAULT_EXTRACTOR_OPTIONS;
-    m.registerExtractor(tName, createDataPointExtractor(opts));
     return m;
   }, [toolName, extractorOptions]);
 

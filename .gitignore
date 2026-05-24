@@ -31,3 +31,7 @@ Thumbs.db
 
 # pnpm store cache
 .pnpm-store/
+
+# Local agent/IDE directories
+.agents/
+.gemini/

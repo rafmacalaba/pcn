@@ -19,13 +19,9 @@ export type CompactRankingOutput = {
   error: string | null;
 };
 
-export type CompactRankedEntry = {
-  rank?: number;
-  code?: string;
-  country?: string;
-  value?: number;
-  claim_id?: string | null;
-};
+export type CompactRankedEntry = CompactRankedCountry;
+
+export const DATA360_GET_DATA_TOOL = "data360_get_data";
 
 export type CompactComparisonSnapshot = {
   year?: string;

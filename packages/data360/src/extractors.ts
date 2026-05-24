@@ -79,7 +79,8 @@ export const compareCountriesExtractor: ToolResultExtractor = (output) => {
         if (!Array.isArray(pt)) continue;
         const claimId = colClaim >= 0 ? (pt[colClaim] as string | null) : null;
         const value = colValue >= 0 ? (pt[colValue] as number | null) : null;
-        const year = colYear >= 0 ? String(pt[colYear] ?? "") : undefined;
+        const rawYear = colYear >= 0 ? pt[colYear] : undefined;
+        const year = rawYear !== null && rawYear !== undefined && rawYear !== "" ? String(rawYear) : undefined;
         if (claimId && value !== null && value !== undefined) {
           entries.push({
             id: claimId,

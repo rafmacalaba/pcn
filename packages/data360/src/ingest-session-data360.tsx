@@ -9,17 +9,25 @@ import {
   summarizeDataExtractor,
   getDataExtractor,
 } from "./extractors";
-import type { MessageWithParts } from "./types";
+import { DATA360_GET_DATA_TOOL, type MessageWithParts } from "./types";
+
+/**
+ * Creates a new ClaimsManager instance with all Data360 extractors pre-registered.
+ */
+export function createData360ClaimsManager(): ClaimsManager {
+  const manager = new ClaimsManager();
+  manager.registerExtractor("data360_rank_countries", rankCountriesExtractor);
+  manager.registerExtractor("data360_compare_countries", compareCountriesExtractor);
+  manager.registerExtractor("data360_summarize_data", summarizeDataExtractor);
+  manager.registerExtractor("data360_get_data", getDataExtractor);
+  return manager;
+}
 
 // ---------------------------------------------------------------------------
 // Module-level singleton — extractors are registered synchronously at import
 // time, before any React render, so IngestToolOutput can always find them.
 // ---------------------------------------------------------------------------
-export const claimsManager = new ClaimsManager();
-claimsManager.registerExtractor("data360_rank_countries", rankCountriesExtractor);
-claimsManager.registerExtractor("data360_compare_countries", compareCountriesExtractor);
-claimsManager.registerExtractor("data360_summarize_data", summarizeDataExtractor);
-claimsManager.registerExtractor("data360_get_data", getDataExtractor);
+export const claimsManager = createData360ClaimsManager();
 
 // Tool types we want to pre-ingest synchronously on load.
 const AGG_TOOL_TYPES = new Set([
@@ -36,7 +44,6 @@ const AGG_TOOL_NAMES: Record<string, string> = {
   "tool-data360_get_data": "data360_get_data",
 };
 
-const DATA360_GET_DATA_TOOL = "data360_get_data";
 const DATA360_TOOL_TYPE = "tool-data360_get_data" as const;
 
 function isData360ToolPart(p: Record<string, unknown>): boolean {
@@ -137,17 +144,27 @@ export function IngestSessionData360({
 export function PreIngestSessionClaims({
   messages,
   initialMessages = [],
+  manager: customManager,
 }: {
   messages: MessageWithParts[];
   initialMessages?: MessageWithParts[];
+  manager?: ClaimsManager;
 }) {
+  const contextManager = useClaimsManager();
+  const manager = customManager ?? contextManager ?? claimsManager;
   const ingestedPartKeysRef = useRef(new Set<string>());
 
   useLayoutEffect(() => {
+    if (!manager) return;
+
     const buildPartKey = (part: Record<string, unknown>, toolName: string) => {
       if (typeof part.id === "string") return `${toolName}:${part.id}`;
       const toolCallId = typeof part.toolCallId === "string" ? part.toolCallId : "";
-      return `${toolName}:${toolCallId}:${JSON.stringify(part.output ?? null)}`;
+      try {
+        return `${toolName}:${toolCallId}:${JSON.stringify(part.output ?? null)}`;
+      } catch {
+        return `${toolName}:${toolCallId}:error`;
+      }
     };
 
     const source = messages.length > 0 ? messages : initialMessages;
@@ -162,7 +179,7 @@ export function PreIngestSessionClaims({
           if (toolName) {
             const partKey = buildPartKey(part, toolName);
             if (ingestedPartKeysRef.current.has(partKey)) continue;
-            claimsManager.ingest(toolName, part.output);
+            manager.ingest(toolName, part.output);
             ingestedPartKeysRef.current.add(partKey);
           }
         }
@@ -176,14 +193,14 @@ export function PreIngestSessionClaims({
             if (toolName) {
               const partKey = buildPartKey(inner, toolName);
               if (ingestedPartKeysRef.current.has(partKey)) continue;
-              claimsManager.ingest(toolName, inner.output);
+              manager.ingest(toolName, inner.output);
               ingestedPartKeysRef.current.add(partKey);
             }
           }
         }
       }
     }
-  }, [messages, initialMessages]);
+  }, [messages, initialMessages, manager]);
 
   return null;
 }
