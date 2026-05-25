@@ -1,5 +1,11 @@
 # @pcn-js/data360
 
+## 0.1.4
+
+### Patch Changes
+
+- Fix custom claim extractors and type definitions.
+
 ## 0.1.3
 
 ### Patch Changes
